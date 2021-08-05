@@ -1,8 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  private guardianAPI: string;
+  private guardianAPIKEY: string;
+  private logger = new Logger('App:Service');
+
+  constructor(
+    private configService: ConfigService,
+    private httpService: HttpService,
+  ) {
+    this.guardianAPI = this.configService.get('GUARDIAN_API');
+    this.guardianAPIKEY = this.configService.get('GUARDIAN_API_KEY');
+  }
+
+  convert(currency: string): Observable<AxiosResponse<any>> {
+    const query = `from_currency=${currency}&from_amount=${1}&to_currency=EUR`;
+    const URL = `${this.guardianAPI}/estimate?${query}`;
+    try {
+      const resp = this.httpService.get(URL, {
+        headers: {
+          x_api_key: this.guardianAPIKEY,
+        },
+      });
+      return resp;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
