@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class AppService {
@@ -21,15 +21,13 @@ export class AppService {
   convert(currency: string): Observable<AxiosResponse<any>> {
     const query = `from_currency=${currency}&from_amount=${1}&to_currency=EUR`;
     const URL = `${this.guardianAPI}/estimate?${query}`;
-    try {
-      const resp = this.httpService.get(URL, {
+
+    return this.httpService
+      .get(URL, {
         headers: {
-          x_api_key: this.guardianAPIKEY,
+          'x-api-key': this.guardianAPIKEY,
         },
-      });
-      return resp;
-    } catch (error) {
-      this.logger.error(error);
-    }
+      })
+      .pipe(map((response) => response?.data?.value));
   }
 }

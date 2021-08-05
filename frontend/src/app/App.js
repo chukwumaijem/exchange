@@ -19,17 +19,22 @@ const currencies = [
 ];
 
 function App() {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState("-");
   const [currency, setCurrency] = useState("eth");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleConvert = async () => {
+    setLoading(true);
     const resp = await getValue(currency);
     if (resp.success) {
       setValue(resp.data);
+      setError("");
     } else {
       setError(resp.message);
+      setValue("");
     }
+    setLoading(false);
   };
 
   return (
@@ -47,7 +52,17 @@ function App() {
       </select>
       <button onClick={handleConvert}>Estimate Button</button>
       <p>Arrow</p>
-      {error ? <p>Amount In EUR is: {value}</p> : <p>Error: {error}</p>}
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <p>
+          {error ? (
+            <span>Error: {error}</span>
+          ) : (
+            <span>Amount In EUR is: {Number(value).toFixed(2)}</span>
+          )}
+        </p>
+      )}
     </div>
   );
 }
