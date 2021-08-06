@@ -22,7 +22,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return value of currency', () => {
-      const input = 'BTH';
+      const input = 'ETH';
       const result = 20;
       jest.spyOn(appService, 'convert').mockImplementation(() => result);
 
